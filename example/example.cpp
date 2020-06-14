@@ -1,10 +1,12 @@
-# dflog
-c++ logging library
+//***************************************************************
+// @file:    example.cpp
+// @author:  dingfang
+// @date    2020-06-11 18:36:38
+//***************************************************************
 
 
-# 使用示例
-```cpp
 #include <dflog/dflog.h>
+
 
 void example()
 {
@@ -25,9 +27,10 @@ void example()
 	return ;
 }
 
+
 int main(void)
 {
 	example();
+
 	return 0;
 }
-```
