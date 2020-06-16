@@ -10,7 +10,11 @@
 
 void example()
 {
-	/* 初始化日志, 可以添加不同的定向log输出 */
+	/* 
+	 * 初始化日志
+	 * 1. 可以添加不同的定向log输出
+	 * 2. 
+	 * */
 	dflog::Logger::Instance()->initLog("./test.log", dflog::loggerOption::FILELOG | dflog::loggerOption::CONSOLE);
 	dflog::Logger::Instance()->setLevel(INFO) /* default DEBUG */;
 	/* 不同的log输出, 可以控制不同的日志等级 */

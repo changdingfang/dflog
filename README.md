@@ -2,7 +2,15 @@
 c++ logging library
 
 
-# 使用示例
+## 平台
+- linux
+
+## 使用
+> 拷贝src到项目路径
+> 添加该路径到cmake子目录项
+
+
+## 使用示例
 ```cpp
 #include <dflog/dflog.h>
 
@@ -31,3 +39,9 @@ int main(void)
 	return 0;
 }
 ```
+
+## 问题反馈
+email: 245292011@qq.com
+
+## 参考
+- [spdlog](https://github.com/gabime/spdlog)

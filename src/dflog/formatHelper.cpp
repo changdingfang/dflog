@@ -31,16 +31,16 @@ namespace dflog
 
 		void FormatHelper::format(const LogMsg_T &logMsg, formatBuf_t &buf)
 		{
-			memset(logBuf_, 0x00, maxLogBufLen_);
-			struct tm localtm;
-			localtime_r(&logMsg.time.sec, &localtm);
-			logBufLen_ = sprintf(logBuf_, "[%04d-%02d-%02d %02d:%02d:%02d.%03d] [%s] [%ld] [%s](%d): ",
-					localtm.tm_year + 1900, 
-					localtm.tm_mon + 1, 
-					localtm.tm_mday,
-					localtm.tm_hour,
-					localtm.tm_min,
-					localtm.tm_sec,
+			::memset(logBuf_, 0x00, maxLogBufLen_);
+			if (lastSec_ != logMsg.time.sec)
+			{
+				struct tm localtm;
+				::localtime_r(&logMsg.time.sec, &localtm);
+				lastSec_ = logMsg.time.sec;
+				::strftime(lastTime_, sizeof(lastTime_), "%Y-%m-%d %H:%M:%S", &localtm);
+			}
+			logBufLen_ = ::sprintf(logBuf_, "[%s.%03d] [%s] [%ld] [%s](%d): ",
+					lastTime_,
 					logMsg.time.usec / 1000,
 					dflog::level::LEVEL[logMsg.level],
 					/* logMsg.logName.c_str(), */
@@ -50,7 +50,7 @@ namespace dflog
 					);
 			if (logBufLen_ + logMsg.logMsg.size() < maxLogBufLen_)
 			{
-				memcpy(logBuf_ + logBufLen_, logMsg.logMsg.c_str(), logMsg.logMsg.size());
+				::memcpy(logBuf_ + logBufLen_, logMsg.logMsg.c_str(), logMsg.logMsg.size());
 				logBuf_[logBufLen_ + logMsg.logMsg.size()] = '\n';
 			}
 
@@ -64,7 +64,7 @@ namespace dflog
 
 			// va_start(ap, fmt)
 			char s[4096] = {};
-			vsnprintf(s, sizeof(s), fmt, ap);
+			::vsnprintf(s, sizeof(s), fmt, ap);
 			// va_end(ap);
 			buf = std::move(std::string(s));
 		}

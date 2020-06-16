@@ -29,6 +29,9 @@ namespace dflog
 			char *logBuf_ = nullptr;
 			int logBufLen_ = 0;
 
+			char lastTime_[32] = {};
+			time_t lastSec_ = 0;
+
 		};
 
 	}; /* namespace fmtHelper end */

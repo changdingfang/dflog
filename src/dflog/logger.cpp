@@ -11,14 +11,57 @@
 #include <stdarg.h>
 #include <sys/time.h>
 
+
 namespace dflog
 {
+
+	std::mutex AsyncLogger::mutex_;
+	std::condition_variable AsyncLogger::cv_;
+
+	AsyncLogger::AsyncLogger()
+	: logThread_(std::thread(AsyncLogger::log, this))
+	{
+	}
+	AsyncLogger::AsyncLogger(uint32_t maxSize)
+	: msgCricle_(maxSize)
+	, logThread_(std::thread(AsyncLogger::log, this))
+	{
+	}
+
+	AsyncLogger::~AsyncLogger()
+	{
+		shouldStop_ = true;
+		logThread_.join();
+	}
+
+	void AsyncLogger::log(AsyncLogger *p)
+	{
+		if (p == nullptr)
+		{
+			throwDflogEx("async logger is null");
+		}
+
+		while (!p->isStop() || !p->getMsgCricle().empty())
+		{
+			std::unique_lock<std::mutex> lock(AsyncLogger::mutex_);
+			if (!AsyncLogger::cv_.wait_for(lock, std::chrono::seconds(1), [p]{ return (!p->getMsgCricle().empty()); }))
+			{
+				continue;
+			}
+
+			Logger::Instance()->sinkIt_(std::move(p->getMsgCricle().pop()));
+			cv_.notify_one();
+		}
+
+		return ;
+	}
 
 
 	Logger *Logger::pLogger_ = nullptr;
 	pthread_once_t Logger::once_ = PTHREAD_ONCE_INIT;
+	Logger::Destroy Logger::destroy_;
 
-	bool Logger::initLog(const char *filename, loggerOption::Option_t option)
+	bool Logger::initLog(const char *filename, loggerOption::Option_t option, dflog::Method method)
 		/* Option = FILELOG */
 	{
 		if (!shouldInit_)
@@ -34,6 +77,12 @@ namespace dflog
 			}
 		}
 		shouldInit_ = false;
+
+		loggerMethod_ = method;
+		if (loggerMethod_ == dflog::Method::ASYNC)
+		{
+			asyncLogger_ = std::make_shared<AsyncLogger>(100000);
+		}
 
 		if (option & loggerOption::FILELOG)
 		{
@@ -65,17 +114,27 @@ namespace dflog
 		va_end(ap);
 
 		struct timeval tv;
-		gettimeofday(&tv, nullptr);
-		LogMsg_T logMsg(tv, srcLoc, "dflog", level, msg);
+		::gettimeofday(&tv, nullptr);
+		LogMsg_T logMsg(tv, std::move(srcLoc), std::move("dflog"), level, std::move(msg));
+
+		if (loggerMethod_ == Method::ASYNC)
+		{
+			asyncLogger_->push(std::move(logMsg));
+			return ;
+		}
+		this->sinkIt_(std::move(logMsg));
+	}
+
+	void Logger::sinkIt_(LogMsg_T logMsg)
+	{
 		for (auto &sinkPair : sinks_)
 		{
-			if (sinkPair.second->shouldLog(level))
+			if (sinkPair.second->shouldLog(logMsg.level))
 			{
-				sinkPair.second->log(logMsg);
+				sinkPair.second->log(std::move(logMsg));
 			}
 		}
 
-		return ;
 	}
 
 	void Logger::setLevel(level::Level_E level, loggerOption::Option_t option)

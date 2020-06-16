@@ -6,4 +6,5 @@ set(ROOT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${ROOT_DIRECTORY}/bin)
 
 add_subdirectory(src/dflog)
+
 add_subdirectory(example)

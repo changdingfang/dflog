@@ -10,18 +10,20 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <sys/unistd.h>
 
 #include <string>
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
+#include <vector>
 
 namespace dflog
 {
 #define DFLOG_LOG_BACKUP_FORMAT "%Y-%m-%d"
 
-#define DFLOG_GET_THREAD_ID 186
 #define ONE_DAY_SEC 86400
 
 	using formatBuf_t = std::string;
@@ -52,7 +54,7 @@ namespace dflog
 		inline size_t threadId() noexcept
 		{
 			// return static_cast<size_t>(pthread_self());
-			return static_cast<size_t>(::syscall(DFLOG_GET_THREAD_ID));
+			return static_cast<size_t>(::syscall(__NR_gettid));
 		}
 
 
@@ -173,12 +175,12 @@ namespace dflog
 	{
 		T_LogMsg() = default;
 		T_LogMsg(LogClock_T logTime, SrcLoc_T loc, std::string logName, level::Level_E lv, std::string msg)
-		: logName(logName)
+		: logName(std::move(logName))
 		, level(lv)
-		, time(logTime)
+		, time(std::move(logTime))
 		, threadId(os::threadId())
-		, srcLoc(loc)
-		, logMsg(msg)
+		, srcLoc(std::move(loc))
+		, logMsg(std::move(msg))
 		{};
 
 		std::string logName;
@@ -199,21 +201,70 @@ namespace dflog
 	public:
 		Mutex() = default;
 		~Mutex() = default;
-		void lock() 
+		inline void lock() 
 		{
 			mutex_.lock();
 		};
-		void tryLock() 
+		inline void tryLock() 
 		{
 			mutex_.try_lock();
 		};
 
-		void unlock() 
+		inline void unlock() 
 		{
 			mutex_.unlock();
 		};
+
 	private:
 		std::mutex mutex_;
 	};
+
+
+	template<typename T>
+		class CricleQueue
+		{
+		public:
+			CricleQueue()
+			{	data_.resize(maxSize_);	}
+			CricleQueue(uint32_t maxSize)
+				: maxSize_(maxSize)
+			{	data_.resize(maxSize_);	}
+			~CricleQueue()
+			{	data_.clear();	}
+
+			inline bool empty()	const {	return ( tail_ == head_ );	}
+			inline bool full()	const {	return ( (tail_ + 1) % maxSize_ == head_ );	}
+			inline uint32_t size() const	{	return size_;	}
+
+			inline bool push(T msg)
+			{
+				if (this->full())
+				{
+					return false;
+				}
+				data_[tail_] = std::move(msg);
+				tail_ = (tail_ + 1) % maxSize_;
+				++size_;
+			}
+			inline T pop()
+			{	
+				if (this->empty())
+				{
+					throwDflogEx("queue is empty!");
+				}
+				uint32_t curr = head_;
+				head_ = (head_ + 1) % maxSize_;
+				--size_;
+
+				return std::move(data_[curr]);
+			}
+		private:
+			std::vector<T> data_;
+			uint32_t head_ = 0;
+			uint32_t tail_ = 0;
+			uint32_t size_ = 0;
+			const uint32_t maxSize_ = 10000;
+		};
+
 
 }; /* namespace common end */
