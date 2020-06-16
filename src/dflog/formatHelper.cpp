@@ -39,7 +39,7 @@ namespace dflog
 				lastSec_ = logMsg.time.sec;
 				::strftime(lastTime_, sizeof(lastTime_), "%Y-%m-%d %H:%M:%S", &localtm);
 			}
-			logBufLen_ = ::sprintf(logBuf_, "[%s.%03d] [%s] [%ld] [%s](%d): ",
+			logBufLen_ = ::sprintf(logBuf_, "[%s.%03ld] [%s] [%lu] [%s](%d): ",
 					lastTime_,
 					logMsg.time.usec / 1000,
 					dflog::level::LEVEL[logMsg.level],

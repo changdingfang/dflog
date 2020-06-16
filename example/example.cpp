@@ -24,7 +24,7 @@ void example()
 	/* 日志, 使用类似于print输出 */
 	LOG(TRACE, "i am trace log (%d), (%.2f)", 123, 2.3);
 	LOG(DEBUG, "i am debug  log (%d), (%f)", 123, 3.3123);
-	LOG(INFO, "i am info log (%ld)", 123);
+	LOG(INFO, "i am info log (%ld)", static_cast<long int>(123));
 	LOG(WARN, "i am warn log %d", 100);
 	LOG(ERROR, "i am error log %s", "hello wrold");
 	LOG(CRITICAL, "i am critical log ");

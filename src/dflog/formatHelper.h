@@ -25,9 +25,9 @@ namespace dflog
 			static void formatToString(std::string &buf, const char *fmt, va_list &ap);
 
 		private:
-			const int maxLogBufLen_ = 4096;
+			const uint32_t maxLogBufLen_ = 4096;
 			char *logBuf_ = nullptr;
-			int logBufLen_ = 0;
+			uint32_t logBufLen_ = 0;
 
 			char lastTime_[32] = {};
 			time_t lastSec_ = 0;

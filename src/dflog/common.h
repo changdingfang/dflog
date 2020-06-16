@@ -77,6 +77,7 @@ namespace dflog
 			}
 
 			throwDflogEx("get filesize error!", errno);
+			return 0;
 		}
 
 
@@ -245,6 +246,7 @@ namespace dflog
 				data_[tail_] = std::move(msg);
 				tail_ = (tail_ + 1) % maxSize_;
 				++size_;
+				return true;
 			}
 			inline T pop()
 			{	

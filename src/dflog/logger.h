@@ -57,8 +57,8 @@ namespace dflog
 	private:
 		static std::mutex mutex_;
 		static std::condition_variable cv_;
-		std::thread logThread_;
 		CricleQueue<LogMsg_T> msgCricle_;
+		std::thread logThread_;
 		bool shouldStop_ = false;
 	};
 
