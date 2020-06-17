@@ -103,10 +103,9 @@ namespace dflog
 
 		void NormalSink::rotateLog_(time_t time)
 		{
-			std::string::size_type pos = filename_.find_last_of('.');
-			std::string ext = (pos != std::string::npos ? filename_.substr(pos + 1, filename_.size()) : filename_);
+			std::string ext, backname;
+			std::tie(backname, ext) = FileHelper::splitByExtension(filename_);
 
-			std::string backname(pos != std::string::npos ? filename_.substr(0, pos) : filename_);
 			struct tm t;
 			::localtime_r(&time, &t);
 			/* 以时间分割, 当文件名相同时, 序号分割. */
@@ -115,10 +114,10 @@ namespace dflog
 			/* 2. filename__year-mon-day.log.1 */
 			char s[64] = { 0 };
 			strftime(s, sizeof(s), DFLOG_LOG_BACKUP_FORMAT, &t);
+			backname.append("_");
 			backname.append(s);
 			if (!ext.empty())
 			{
-				backname.append(".");
 				backname.append(ext);
 			}
 

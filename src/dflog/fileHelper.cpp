@@ -62,5 +62,18 @@ namespace dflog
 		return ;
 	}
 
+	std::tuple<std::string, std::string> FileHelper::splitByExtension(const std::string &filename)
+	{
+		std::string::size_type pos = filename.rfind('.');
+		std::string::size_type folderPos = filename.rfind('/');
+		if (pos == std::string::npos || pos == filename.size() - 1 || pos == 0
+			|| (folderPos != std::string::npos && folderPos >= pos - 1))
+		{
+			return std::make_tuple(filename, std::string());
+		}
+
+		return std::make_tuple(filename.substr(0, pos), filename.substr(pos));
+	}
+
 }; /* namespace dflog end */
 

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <dflog/common.h>
+#include <tuple>
 
 namespace dflog
 {
@@ -40,6 +41,8 @@ namespace dflog
 			return dflog::os::filesize(pFd_);
 		}
 		const std::string &filename() const	{	return filename_;	}
+
+		static std::tuple<std::string, std::string> splitByExtension(const std::string &filename);
 
 	private:
 		std::FILE	*pFd_	= nullptr;

@@ -13,13 +13,13 @@ void example()
 	/* 
 	 * 初始化日志
 	 * 1. 可以添加不同的定向log输出
-	 * 2. 
+	 * 2. 可以设置异步或同步模式
 	 * */
-	dflog::Logger::Instance()->initLog("./test.log", dflog::loggerOption::FILELOG | dflog::loggerOption::CONSOLE);
-	dflog::Logger::Instance()->setLevel(INFO) /* default DEBUG */;
+	dflog::InitLog("./test.log", dflog::loggerOption::FILELOG | dflog::loggerOption::CONSOLE,dflog::Method::SYNC);
+	dflog::SetLevel(INFO); /* default DEBUG */
 	/* 不同的log输出, 可以控制不同的日志等级 */
-	dflog::Logger::Instance()->setLevel(DEBUG, dflog::loggerOption::FILELOG | dflog::loggerOption::CONSOLE); /* 默认所有日志等级改动 */;
-	// Logger::Instance()->setFlushLevel(WARN) /* 默认每次刷新(TRACE) */;
+	dflog::SetLevel(DEBUG, dflog::loggerOption::FILELOG | dflog::loggerOption::CONSOLE); /* 默认所有日志等级改动 */;
+	// dflog::SetFlushLevel(WARN) /* 默认每次刷新(TRACE) */;
 
 	/* 日志, 使用类似于print输出 */
 	LOG(TRACE, "i am trace log (%d), (%.2f)", 123, 2.3);

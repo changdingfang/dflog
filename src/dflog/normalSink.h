@@ -17,6 +17,11 @@ namespace dflog
 	{
 		typedef struct T_Rotation
 		{
+			T_Rotation() = default;
+			T_Rotation(int rh, int rm)
+				: rotationH(rh)
+				, rotationM(rm)
+			{	}
 			bool operator > (const T_Rotation &other) const
 			{
 				if (this->rotationH > other.rotationH || 
@@ -36,7 +41,8 @@ namespace dflog
 		{
 		public:
 			NormalSink(std::string filename, Rotation_T rotationTime, uint64_t maxFilesize = 1024 * 1024 * 100, uint16_t maxFiles = 10); 
-			virtual ~NormalSink() = default;
+			virtual ~NormalSink()
+			{	fileHelper_.close();	}
 
 			NormalSink(const NormalSink &other) = delete;
 			NormalSink(NormalSink &&other) = delete;
