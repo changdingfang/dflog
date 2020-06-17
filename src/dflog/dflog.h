@@ -16,29 +16,43 @@ using namespace dflog::level;
 
 namespace dflog
 {
+	/*
+	 * 初始化日志
+	 * */
 	static void InitLog(std::string filename, dflog::loggerOption::Option_t logOption = dflog::loggerOption::FILELOG, dflog::Method method = dflog::Method::SYNC)
 	{
 		dflog::Logger::Instance()->initLog(filename.c_str(), logOption, method);
 	}
 
+	/*
+	 * 设置日志等级
+	 * */
 	static void SetLevel(dflog::level::Level_E lvl, dflog::loggerOption::Option_t logOption = dflog::loggerOption::FILELOG)
 	{
 		dflog::Logger::Instance()->setLevel(lvl, logOption) /* default DEBUG */;
 	}
 
+	/*
+	 * 设置写入文件刷新等级
+	 * 当达到该等级时进行刷新写入文件(或达到最大缓存自动写入)
+	 * */
 	static void SetFlushLevel(dflog::level::Level_E lvl, loggerOption::Option_t logOption = loggerOption::ALL_SINKS)
 	{
 		dflog::Logger::Instance()->setFlushLevel(lvl, logOption);
 	}
 
-	/* default 100MB */
+	/* 
+	 * 设置单个日志文件最大值
+	 * 达到最大值后将分割日志
+	 * default 100MB 
+	 * */
 	static void SetFileSize(uint64_t filesize)
 	{
 		// dflog::Logger::Instance()->setFileSize(filesize);
 	}
 
 	/*
-	 * 
+	 * 设置每日分割日志时间, 24小时制
 	 * default 06:30
 	 * */
 	static void SetRotationTime(int hour, int min)

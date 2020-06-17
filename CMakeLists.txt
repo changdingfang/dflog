@@ -9,4 +9,4 @@ set(LIBRARY_OUTPUT_PATH ${ROOT_DIRECTORY}/build/lib)
 add_subdirectory(src/dflog)
 
 add_subdirectory(example)
-# add_subdirectory(tests)
+add_subdirectory(tests)
