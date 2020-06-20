@@ -6,6 +6,7 @@
 
 #include <dflog/logger.h>
 #include <dflog/normalSink.h>
+#include <dflog/consoleSink.h>
 #include <dflog/formatHelper.h>
 
 #include <stdarg.h>
@@ -98,9 +99,12 @@ namespace dflog
 		}
 		if (option & loggerOption::CONSOLE)
 		{
-			/* ... */
+			sinkPtr sp(new sinks::ConsoleSink());
+			sp->setFormatter(std::move(std::unique_ptr<dflog::fmtHelper::FormatHelper>(new dflog::fmtHelper::FormatHelper())));
+			sinks_.push_back(std::make_pair(loggerOption::CONSOLE, sp));
 		}
-		this->setLevel(dflog::level::DEBUG);
+
+		this->setLevel(dflog::level::DEBUG, loggerOption::ALL_SINKS);
 
 		return true;
 	}
@@ -116,7 +120,6 @@ namespace dflog
 	}
 
 	void Logger::setLevel(level::Level_E level, loggerOption::Option_t option)
-		/* default option = loggerOption::ALL_SINKS */
 	{
 		for (auto &sinkPair : sinks_)
 		{
@@ -168,6 +171,18 @@ namespace dflog
 			}
 		}
 		return true;
+	}
+
+	void Logger::setTerminalColor(bool shouldColor)
+	{
+		for (auto &sinkPair : sinks_)
+		{
+			if (sinkPair.first & dflog::loggerOption::CONSOLE)
+			{
+				dynamic_cast<sinks::ConsoleSink *>(sinkPair.second.get())->setTerminalColor(shouldColor);
+				break;
+			}
+		}
 	}
 	
 	void Logger::fflush()

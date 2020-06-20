@@ -19,6 +19,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <vector>
+#include <map>
 
 namespace dflog
 {
@@ -110,8 +111,6 @@ namespace dflog
 	}; /* namespace os end */
 
 
-
-
 	namespace level
 	{
 
@@ -126,16 +125,68 @@ namespace dflog
 			LOG_OFF		= 7
 		}Level_E;
 
-		const char LEVEL[][10] = {"NONE", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"};
+		constexpr char LEVEL[][10] = {"NONE", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"};
 
 	}; /* namespace level end */
+
+	namespace terminalcolor
+	{
+
+		enum class ATTR_E : uint8_t
+		{
+			NORMAL = 0,
+			BLOD,
+			REVERSE = 7,
+		};
+
+		enum class FG_E : uint8_t
+		{
+			BLACK = 30,
+			RED,
+			GREEN,
+			YELLOW,
+			BLUE,
+			PURPLE,
+			CYAN,
+			WHITE
+		};
+
+		enum class BG_E : uint8_t
+		{
+			BLACK = 40,
+			RED,
+			GREEN,
+			YELLOW,
+			BLUE,
+			PURPLE,
+			CYAN,
+			WHITE,
+		};
+
+		typedef struct T_TerminalColor
+		{
+			ATTR_E attr;
+			FG_E fg;
+			BG_E bg;
+		}TerminalColor_T;
+
+		static std::map< level::Level_E, TerminalColor_T > TerminalColor = {
+			{ level::TRACE,		{	ATTR_E::BLOD,	FG_E::BLACK,	BG_E::BLACK	} },
+			{ level::DEBUG,		{	ATTR_E::NORMAL,	FG_E::WHITE,	BG_E::BLACK	} },
+			{ level::INFO,		{	ATTR_E::NORMAL,	FG_E::GREEN,	BG_E::BLACK	} },
+			{ level::WARN,		{	ATTR_E::NORMAL,	FG_E::PURPLE,	BG_E::BLACK	} },
+			{ level::ERROR,		{	ATTR_E::NORMAL,	FG_E::RED,		BG_E::BLACK	} },
+			{ level::CRITICAL,	{	ATTR_E::REVERSE,FG_E::RED,		BG_E::BLACK	} }
+		};
+
+	}; /* namespace terminalcolor end */
 
 	typedef struct T_LogClock
 	{
 		T_LogClock() = default;
 		constexpr T_LogClock(time_t secIn, suseconds_t usecIn)
 			: sec(secIn)
-			, usec(usecIn)
+			  , usec(usecIn)
 		{	}
 		T_LogClock(const struct timeval &tv)
 		{
@@ -145,7 +196,7 @@ namespace dflog
 		bool operator > (const T_LogClock &other) const
 		{
 			if (this->sec > other.sec || 
-				(this->sec == other.sec && this->usec > other.usec))
+					(this->sec == other.sec && this->usec > other.usec))
 			{
 				return true;
 			}
@@ -176,22 +227,18 @@ namespace dflog
 	{
 		T_LogMsg() = default;
 		T_LogMsg(LogClock_T logTime, SrcLoc_T loc, std::string logName, level::Level_E lv, std::string msg)
-		: logName(std::move(logName))
-		, level(lv)
-		, time(std::move(logTime))
-		, threadId(os::threadId())
-		, srcLoc(std::move(loc))
-		, logMsg(std::move(msg))
+			: logName(std::move(logName))
+			  , level(lv)
+			  , time(std::move(logTime))
+			  , threadId(os::threadId())
+			  , srcLoc(std::move(loc))
+			  , logMsg(std::move(msg))
 		{};
 
 		std::string logName;
 		level::Level_E level = level::LOG_OFF;
 		LogClock_T time;
 		size_t threadId = 0;
-
-		/* * * * */
-		/* color */
-		/* * * * */
 
 		SrcLoc_T srcLoc;
 		std::string logMsg;

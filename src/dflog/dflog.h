@@ -28,7 +28,7 @@ namespace dflog
 	/*
 	 * 设置日志等级
 	 * */
-	static void SetLevel(dflog::level::Level_E lvl, dflog::loggerOption::Option_t logOption = dflog::loggerOption::FILELOG)
+	static void SetLevel(dflog::level::Level_E lvl, dflog::loggerOption::Option_t logOption = dflog::loggerOption::ALL_SINKS)
 	{
 		dflog::Logger::Instance()->setLevel(lvl, logOption) /* default DEBUG */;
 	}
@@ -41,6 +41,16 @@ namespace dflog
 	{
 		dflog::Logger::Instance()->setFlushLevel(lvl, logOption);
 	}
+
+
+	/*
+	 * 刷新缓冲区
+	 * */
+	static void Fflush()
+	{
+		dflog::Logger::Instance()->fflush();
+	}
+
 
 	/* 
 	 * 设置单个日志文件最大值
@@ -64,6 +74,11 @@ namespace dflog
 	/**/
 	static void SetFiles()
 	{
+	}
+
+	static void SetTerminalColor(bool shouldColor)
+	{
+		dflog::Logger::Instance()->setTerminalColor(shouldColor);
 	}
 
 

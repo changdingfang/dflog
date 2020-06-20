@@ -78,7 +78,7 @@ namespace dflog
 			return pLogger_;
 		}
 
-		bool initLog(const char *filename, loggerOption::Option_t option = loggerOption::FILELOG, dflog::Method method = dflog::Method::SYNC);
+		bool initLog(const char *filename, loggerOption::Option_t option, dflog::Method method);
 
 		template<typename... Args>
 			void log(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, const Args &...args)
@@ -89,11 +89,13 @@ namespace dflog
 		void logf(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, ...) __attribute__((format(printf, 4,5)));
 
 
-		void setLevel(level::Level_E level, loggerOption::Option_t option = loggerOption::ALL_SINKS);
-		void setFlushLevel(level::Level_E level, loggerOption::Option_t option = loggerOption::ALL_SINKS);
+		void setLevel(level::Level_E level, loggerOption::Option_t option);
+		void setFlushLevel(level::Level_E level, loggerOption::Option_t option);
 
 		void setFileSize(uint64_t filesize);
 		bool setRotationTime(int hour, int min);
+
+		void setTerminalColor(bool shouldColor);
 
 		void fflush();
 

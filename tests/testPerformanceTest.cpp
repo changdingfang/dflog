@@ -119,15 +119,15 @@ void multithread(uint32_t logLines, uint32_t threadNum)
 
 int main(void)
 {
-	Logger::Instance()->initLog("cdf_test.log", loggerOption::FILELOG | loggerOption::CONSOLE, dflog::Method::SYNC);
-	Logger::Instance()->setLevel(TRACE);
-	Logger::Instance()->setFlushLevel(LOG_OFF);
+	dflog::InitLog("cdf_test.log", loggerOption::FILELOG | loggerOption::CONSOLE, dflog::Method::SYNC);
+	dflog::SetLevel(TRACE);
+	dflog::SetFlushLevel(LOG_OFF);
 	
 	constexpr uint32_t lines =  10 * 10000;
 	singleProcess(lines);
 	multithread(lines, 2);
 
-	Logger::Instance()->fflush();
+	dflog::Fflush();
 
 	return 0;
 }

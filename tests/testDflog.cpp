@@ -83,7 +83,7 @@ void testLevel()
 	lvs.push_back(LOG_OFF);
 	for (uint32_t i = 0; i < lvs.size(); ++i)
 	{
-		Logger::Instance()->setLevel(lvs[i]);
+		dflog::SetLevel(lvs[i]);
 		LOGF(CRITICAL, "* * * * * * * * * * * * * * * * * * *");
 		LOGF(TRACE, "hello wrold. set level(%s)", (LEVEL[lvs[i]]));
 		LOGF(DEBUG, "hello wrold. set level(%s)", (LEVEL[lvs[i]]));
@@ -99,7 +99,7 @@ void testLevel()
 
 int main(int argc, char *argv[])
 {
-	Logger::Instance()->initLog("./dflog.log", loggerOption::FILELOG);
+	dflog::InitLog("./dflog.log", loggerOption::FILELOG);
 
 	testDflog();
 	testLevel();
