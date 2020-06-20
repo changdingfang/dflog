@@ -13,6 +13,7 @@ using namespace dflog::level;
 
 #define LOG(level, ...)  (dflog::Logger::Instance())->log(dflog::SrcLoc_T{__FILE__, __LINE__, __FUNCTION__}, level, __VA_ARGS__)
 
+#define LOGF(level, ...)  (dflog::Logger::Instance())->logf(dflog::SrcLoc_T{__FILE__, __LINE__, __FUNCTION__}, level, __VA_ARGS__)
 
 namespace dflog
 {
@@ -48,16 +49,16 @@ namespace dflog
 	 * */
 	static void SetFileSize(uint64_t filesize)
 	{
-		// dflog::Logger::Instance()->setFileSize(filesize);
+		dflog::Logger::Instance()->setFileSize(filesize);
 	}
 
 	/*
 	 * 设置每日分割日志时间, 24小时制
 	 * default 06:30
 	 * */
-	static void SetRotationTime(int hour, int min)
+	static bool SetRotationTime(int hour, int min)
 	{
-		// dflog::Logger::Instance()->setRotationTime(hour, min);
+		return dflog::Logger::Instance()->setRotationTime(hour, min);
 	}
 
 	/**/

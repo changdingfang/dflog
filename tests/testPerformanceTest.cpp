@@ -51,7 +51,7 @@ void test(int32_t lines)
 	gettimeofday(&tv, nullptr);
 	for (int i = 0; i < lines; ++i)
 	{
-		LOG(INFO, "hello world! (%d)", i);
+		LOGF(INFO, "hello world! (%d)", i);
 	}
 	struct timeval tv2;
 	gettimeofday(&tv2, nullptr);
@@ -88,7 +88,7 @@ void multithread(uint32_t logLines, uint32_t threadNum)
 		t.emplace_back([logLines, threadNum]() {
 					for (uint32_t j = 0; j < logLines / threadNum; ++j)
 					{
-					LOG(INFO, "hello world! (%d)", j);
+					LOGF(INFO, "hello world! (%d)", j);
 					}
 					});
 	}
@@ -126,6 +126,8 @@ int main(void)
 	constexpr uint32_t lines =  10 * 10000;
 	singleProcess(lines);
 	multithread(lines, 2);
+
+	Logger::Instance()->fflush();
 
 	return 0;
 }

@@ -6,6 +6,9 @@ set(ROOT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${ROOT_DIRECTORY}/build/bin)
 set(LIBRARY_OUTPUT_PATH ${ROOT_DIRECTORY}/build/lib)
 
+link_directories(${ROOT_DIRECTORY}/tests/googletest/lib)
+
+add_subdirectory(src/fmt)
 add_subdirectory(src/dflog)
 
 add_subdirectory(example)

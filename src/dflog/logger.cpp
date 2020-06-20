@@ -62,7 +62,7 @@ namespace dflog
 	Logger::Destroy Logger::destroy_;
 
 	bool Logger::initLog(const char *filename, loggerOption::Option_t option, dflog::Method method)
-		/* Option = FILELOG */
+		/* default Option = FILELOG, Method = SYNC */
 	{
 		if (!shouldInit_)
 		{
@@ -105,36 +105,14 @@ namespace dflog
 		return true;
 	}
 
-	void Logger::log(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, ...)
+	void Logger::logf(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, ...)
 	{
 		std::string msg;
 		va_list ap;
 		va_start(ap, fmt);
-		dflog::fmtHelper::FormatHelper::formatToString(msg, fmt, ap);
+		dflog::fmtHelper::FormatHelper::formatToString_f(msg, fmt, ap);
 		va_end(ap);
-
-		struct timeval tv;
-		::gettimeofday(&tv, nullptr);
-		LogMsg_T logMsg(tv, std::move(srcLoc), std::move("dflog"), level, std::move(msg));
-
-		if (loggerMethod_ == Method::ASYNC)
-		{
-			asyncLogger_->push(std::move(logMsg));
-			return ;
-		}
-		this->sinkIt_(std::move(logMsg));
-	}
-
-	void Logger::sinkIt_(LogMsg_T logMsg)
-	{
-		for (auto &sinkPair : sinks_)
-		{
-			if (sinkPair.second->shouldLog(logMsg.level))
-			{
-				sinkPair.second->log(std::move(logMsg));
-			}
-		}
-
+		this->log_(srcLoc, level, msg);
 	}
 
 	void Logger::setLevel(level::Level_E level, loggerOption::Option_t option)
@@ -162,6 +140,35 @@ namespace dflog
 
 		return ;
 	}
+
+	void Logger::setFileSize(uint64_t filesize)
+	{
+		for (auto &sinkPair : sinks_)
+		{
+			if (sinkPair.first & dflog::loggerOption::FILELOG)
+			{
+				dynamic_cast<sinks::NormalSink *>(sinkPair.second.get())->setFileSize(filesize);
+			}
+		}
+	}
+
+	bool Logger::setRotationTime(int hour, int min)
+	{
+		if (hour > 23 || hour < 0
+			|| min > 59 || min < 0)
+		{
+			return false;
+		}
+		dflog::sinks::Rotation_T rt(hour, min);
+		for (auto &sinkPair : sinks_)
+		{
+			if (sinkPair.first & dflog::loggerOption::FILELOG)
+			{
+				dynamic_cast<sinks::NormalSink *>(sinkPair.second.get())->setRotationTime(rt);
+			}
+		}
+		return true;
+	}
 	
 	void Logger::fflush()
 	{
@@ -170,6 +177,35 @@ namespace dflog
 			sinkPair.second->flush();
 		}
 	}
+
+
+	void Logger::log_(SrcLoc_T srcLoc, level::Level_E level, std::string msg)
+	{
+		struct timeval tv;
+		::gettimeofday(&tv, nullptr);
+		LogMsg_T logMsg(tv, std::move(srcLoc), std::move("dflog"), level, std::move(msg));
+
+		if (loggerMethod_ == Method::ASYNC)
+		{
+			asyncLogger_->push(std::move(logMsg));
+			return ;
+		}
+		this->sinkIt_(std::move(logMsg));
+		return ;
+	}
+
+	void Logger::sinkIt_(LogMsg_T logMsg)
+	{
+		for (auto &sinkPair : sinks_)
+		{
+			if (sinkPair.second->shouldLog(logMsg.level))
+			{
+				sinkPair.second->log(std::move(logMsg));
+			}
+		}
+
+	}
+
 
 
 };/* dflog namespace end */

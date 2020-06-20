@@ -9,6 +9,9 @@
 
 #include <dflog/sink.h>
 #include <dflog/common.h>
+#include <fmt/format.h>
+
+#include <sys/time.h>
 
 #include <vector>
 #include <utility>
@@ -77,10 +80,20 @@ namespace dflog
 
 		bool initLog(const char *filename, loggerOption::Option_t option = loggerOption::FILELOG, dflog::Method method = dflog::Method::SYNC);
 
-		void log(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, ...) __attribute__((format(printf, 4,5)));
+		template<typename... Args>
+			void log(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, const Args &...args)
+			{
+				this->log_(srcLoc, level, std::move(fmt::format(fmt, args...)));
+			}
+
+		void logf(SrcLoc_T srcLoc, level::Level_E level, const char *fmt, ...) __attribute__((format(printf, 4,5)));
+
 
 		void setLevel(level::Level_E level, loggerOption::Option_t option = loggerOption::ALL_SINKS);
 		void setFlushLevel(level::Level_E level, loggerOption::Option_t option = loggerOption::ALL_SINKS);
+
+		void setFileSize(uint64_t filesize);
+		bool setRotationTime(int hour, int min);
 
 		void fflush();
 
@@ -104,6 +117,7 @@ namespace dflog
 		Logger() = default;
 		~Logger() = default;
 
+		void log_(SrcLoc_T srcLoc, level::Level_E level, std::string msg);
 		void sinkIt_(LogMsg_T logMsg);
 
 		static void newLogger_()
@@ -126,5 +140,10 @@ namespace dflog
 
 		static Destroy destroy_;
 	};
+
+
+
+
+
 
 };/* dflog namespace end */

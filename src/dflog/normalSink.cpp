@@ -51,7 +51,7 @@ namespace dflog
 
 			formatBuf_t formattedMsg;
 			/* format */
-			Sink::formatHelper_->format(msg, formattedMsg);
+			Sink::formatHelper_->format_f(msg, formattedMsg);
 
 			currentSize_ += formattedMsg.size();
 			dflog::LogClock_T time = msg.time;
@@ -100,6 +100,16 @@ namespace dflog
 			return ;
 		}
 
+		void NormalSink::setFileSize(uint64_t filesize)
+		{
+			maxFilesize_ = filesize;
+		}
+
+		bool NormalSink::setRotationTime(Rotation_T rt)
+		{
+			rotation_ = rt;
+			return true;
+		}
 
 		void NormalSink::rotateLog_(time_t time)
 		{

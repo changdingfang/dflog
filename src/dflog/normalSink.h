@@ -55,13 +55,16 @@ namespace dflog
 			virtual void setPattern(const std::string &pattern) final;
 			virtual void setFormatter(std::unique_ptr<dflog::fmtHelper::FormatHelper> sinkFormatHelper) final;
 
+			void setFileSize(uint64_t filesize);
+			bool setRotationTime(Rotation_T rt);
+
 		private:
 			void rotateLog_(time_t time);
 		private:
 			std::string filename_;
 			Rotation_T rotation_;
 			uint64_t currentSize_ = 0;
-			const uint64_t maxFilesize_;
+			uint64_t maxFilesize_;
 			const uint16_t maxFiles_;
 			FileHelper fileHelper_;
 
