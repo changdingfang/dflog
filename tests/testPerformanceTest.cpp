@@ -119,7 +119,7 @@ void multithread(uint32_t logLines, uint32_t threadNum)
 
 int main(void)
 {
-	dflog::InitLog("cdf_test.log", loggerOption::FILELOG | loggerOption::CONSOLE, dflog::Method::SYNC);
+	dflog::InitLog("cdf_test.log", loggerOption::FILELOG, dflog::Method::SYNC);
 	dflog::SetLevel(TRACE);
 	dflog::SetFlushLevel(LOG_OFF);
 	

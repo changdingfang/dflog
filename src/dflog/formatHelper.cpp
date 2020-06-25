@@ -18,19 +18,6 @@ namespace dflog
 	namespace fmtHelper
 	{
 
-		FormatHelper::FormatHelper()
-		{
-			logBuf_ = new char[maxLogBufLen_ + 1]();
-		}
-		FormatHelper::~FormatHelper()
-		{
-			if (logBuf_ != nullptr)
-			{
-				delete logBuf_;
-				logBuf_ = nullptr;
-			}
-		}
-
 		void FormatHelper::format(const LogMsg_T &logMsg, formatBuf_t &buf)
 		{
 			if (lastSec_ != logMsg.time.sec)
@@ -45,7 +32,7 @@ namespace dflog
 					logMsg.threadId,
 					dflog::os::filename(logMsg.srcLoc.filename).c_str(),
 					logMsg.srcLoc.line,
-					logMsg.logMsg.c_str()
+					logMsg.logMsg.substr(0, maxLogBufLen_).c_str()
 					));
 
 			return ;
@@ -53,34 +40,37 @@ namespace dflog
 
 		void FormatHelper::format_f(const LogMsg_T &logMsg, formatBuf_t &buf)
 		{
-			::memset(logBuf_, 0x00, maxLogBufLen_);
+			::memset(logBuf_, 0x00, logBufLen_);
 			if (lastSec_ != logMsg.time.sec)
 			{
 				this->updateTime_(logMsg.time.sec);
 			}
-			logBufLen_ = std::snprintf(logBuf_, maxLogBufLen_, "[%s.%03ld] [%s] [%lu] [%s](%d): %s\n",
+			logBufLen_ = std::sprintf(logBuf_, "[%s.%03ld] [%s] [%lu] [%s](%d): ",
 					lastTime_,
 					logMsg.time.usec / 1000,
 					dflog::level::LEVEL[logMsg.level],
 					/* logMsg.logName.c_str(), */
 					logMsg.threadId,
 					dflog::os::filename(logMsg.srcLoc.filename).c_str(),
-					logMsg.srcLoc.line,
-					logMsg.logMsg.c_str()
+					logMsg.srcLoc.line
 					);
 
-			buf += (logBuf_);
+			buf.reserve(logBufLen_ + (logMsg.logMsg.size() % maxLogBufLen_) + 1);
+			buf += logBuf_;
+			buf += std::move(logMsg.logMsg.substr(0, maxLogBufLen_));
+			buf += '\n';
+
 			return ;
 		}
 
 		void FormatHelper::formatToString_f(std::string &buf, const char *fmt, va_list &ap)
 		{
-			// va_list ap;
-
-			// va_start(ap, fmt)
-			char s[4096] = {};
-			std::vsnprintf(s, sizeof(s), fmt, ap);
-			// va_end(ap);
+			char s[maxLogBufLen_] = { '\0' };
+			uint32_t size = std::vsnprintf(s, maxLogBufLen_, fmt, ap);
+			if (size >= maxLogBufLen_)
+			{
+				s[maxLogBufLen_] = '\0';
+			}
 			buf += s;
 		}
 

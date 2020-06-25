@@ -20,8 +20,8 @@ namespace dflog
 		class FormatHelper
 		{
 		public:
-			FormatHelper();
-			~FormatHelper();
+			FormatHelper() = default;
+			~FormatHelper() = default;
 			void format(const LogMsg_T &logMsg, formatBuf_t &buf);
 			void format_f(const LogMsg_T &logMsg, formatBuf_t &buf);
 
@@ -31,8 +31,8 @@ namespace dflog
 			void updateTime_(time_t sec);
 
 		private:
-			const uint32_t maxLogBufLen_ = 4096;
-			char *logBuf_ = nullptr;
+			static constexpr uint32_t maxLogBufLen_ = 20 * 1024;
+			char logBuf_[256] = { '\0' };
 			uint32_t logBufLen_ = 0;
 
 			char lastTime_[32] = { 0 };
