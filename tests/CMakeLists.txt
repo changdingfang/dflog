@@ -4,6 +4,7 @@ enable_testing()
 
 include_directories(${ROOT_DIRECTORY}/src)
 include_directories(${ROOT_DIRECTORY}/tests/googletest/include)
+link_directories(${ROOT_DIRECTORY}/tests/googletest/lib)
 
 file(GLOB_RECURSE testfiles RELATIVE "${ROOT_DIRECTORY}/tests" ${ROOT_DIRECTORY}/tests/*.cpp)
 

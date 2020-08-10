@@ -68,6 +68,29 @@ int main(void)
 
 ```
 
+## 仓库代码编译
+
+- 带有测试用例的编译
+    - 如果需要编译tests的测试，则需要下载[googletest](https://github.com/google/googletest)的代码编译出libgtest.a库，并把该库和对应的头文件放到tests/googletest/include 和 tests/googletest/lib 下。
+	> 目前仓库中携带的库是基于centos7 gcc5.4版本编译的。
+	>   
+    - 编译
+	在仓库根目录下执行如下命令
+	```shell
+	mkdir build
+	cd build
+	cmake -DDFLOG_TEST=ON ..
+	make
+	```
+- 仅有演示示例的编译
+    在仓库根目录下执行如下命令
+    ```shell
+    mkdir build
+    cd build
+    cmake ..
+    make
+    ```
+
 ## 问题反馈
 email: 245292011@qq.com
 

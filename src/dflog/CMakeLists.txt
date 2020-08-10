@@ -6,4 +6,4 @@ include_directories(${ROOT_DIRECTORY}/src)
 
 add_library(dflog STATIC ${SOURCE_FILES})
 
-target_link_libraries(${testname} dflog gtest fmt)
+target_link_libraries(dflog fmt)
