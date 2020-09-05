@@ -12,41 +12,41 @@
 namespace dflog
 {
 
-	class FileHelper
-	{
-	public:
-		explicit FileHelper() = default;
-		~FileHelper() 
-		{	this->close();	}
 
-		FileHelper(const FileHelper &other) = delete;
-		FileHelper(FileHelper &&other) = delete;
+    class FileHelper final
+    {
+    public:
+        FileHelper() = default;
+        ~FileHelper() {	this->close();	}
 
-		FileHelper operator = (const FileHelper &other) = delete;
-		FileHelper operator = (FileHelper &&other) = delete;
+        FileHelper(const FileHelper &other) = delete;
+        FileHelper(FileHelper &&other) = delete;
+        FileHelper operator = (const FileHelper &other) = delete;
+        FileHelper operator = (FileHelper &&other) = delete;
 
+        void open(const std::string &filename);
+        void reopen();
+        void flush();
+        void close();
+        void write(const formatBuf_t &buf);
 
-		void open(const std::string &filename);
-		void reopen();
-		void flush();
-		void close();
-		void write(const formatBuf_t &buf);
+        size_t size()
+        {
+            if (pFd_ == nullptr)
+            {
+                throwDflogEx("fd is null, filename: " + filename_);
+            }
+            return dflog::os::filesize(pFd_);
+        }
 
-		size_t size()
-		{
-			if (pFd_ == nullptr)
-			{
-				throwDflogEx("fd is null, filename: " + filename_);
-			}
-			return dflog::os::filesize(pFd_);
-		}
-		const std::string &filename() const	{	return filename_;	}
+        const std::string &filename() const noexcept { return filename_; }
 
-		static std::tuple<std::string, std::string> splitByExtension(const std::string &filename);
+        static std::tuple<std::string, std::string> splitByExtension(const std::string &filename);
 
-	private:
-		std::FILE	*pFd_	= nullptr;
-		std::string	filename_;
-	};
+    private:
+        std::FILE    *pFd_ = nullptr;
+        std::string  filename_ = "";
+    };
+
 
 }; /* namespace dflog end */

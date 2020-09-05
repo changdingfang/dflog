@@ -14,32 +14,35 @@
 namespace dflog
 {
 
-	namespace fmtHelper
-	{
+    namespace fmtHelper
+    {
 
-		class FormatHelper
-		{
-		public:
-			FormatHelper() = default;
-			~FormatHelper() = default;
-			void format(const LogMsg_T &logMsg, formatBuf_t &buf);
-			void format_f(const LogMsg_T &logMsg, formatBuf_t &buf);
+         
+        class FormatHelper final
+        {
+        public:
+            FormatHelper() = default;
+            ~FormatHelper() = default;
 
-			static void formatToString_f(std::string &buf, const char *fmt, va_list &ap);
+            void format(const LogMsg_T &logMsg, formatBuf_t &buf);
+            void format_f(const LogMsg_T &logMsg, formatBuf_t &buf);
 
-		private:
-			void updateTime_(time_t sec);
+            static void formatToString_f(std::string &buf, const char *fmt, va_list &ap);
 
-		private:
-			static constexpr uint32_t maxLogBufLen_ = 20 * 1024;
-			char logBuf_[256] = { '\0' };
-			uint32_t logBufLen_ = 0;
+        private:
+            void updateTime_(time_t sec);
 
-			char lastTime_[32] = { 0 };
-			time_t lastSec_ = 0;
+        private:
+            static constexpr uint32_t maxLogBufLen_ = 20 * 1024;
+            char logBuf_[256] = { '\0' };
+            uint32_t logBufLen_ = 0;
 
-		};
+            char lastTime_[32] = { '\0' };
+            time_t lastSec_ = 0;
 
-	}; /* namespace fmtHelper end */
+        };
+
+
+    }; /* namespace fmtHelper end */
 
 };/* namespace dflog end */
