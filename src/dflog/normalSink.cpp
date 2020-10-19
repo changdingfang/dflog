@@ -70,13 +70,10 @@ namespace dflog
             if (shouldRotate)
             {
                 this->rotateLog_(time.sec);
-                do
+                while (msg.time > rotationTime_)
                 {
-                    if (msg.time > rotationTime_)
-                    {
-                        rotationTime_ .sec += ONE_DAY_SEC;
-                    }
-                } while (msg.time > rotationTime_);
+                    rotationTime_ .sec += ONE_DAY_SEC;
+                }
 
                 currentSize_ = formattedMsg.size();
             }

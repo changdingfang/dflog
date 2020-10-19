@@ -7,7 +7,6 @@
 #pragma once
 
 #include <dflog/common.h>
-#include <fmt/format.h>
 
 #include <stdarg.h>
 
