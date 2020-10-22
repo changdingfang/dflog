@@ -3,7 +3,20 @@ c++ logging library
 
 
 ## 平台
+
 - linux
+
+## 特点
+
+- 使用简单易上手
+- 小巧速度快
+- 输出
+    - 控制台输出(不同日志等级采用不同颜色打印,彩色打印可通过接口关闭或开启)
+    - 文件输出(日志文件按天和文件大小进行分割)
+    - 不同输出可设置不同日志等级
+- 日志级别支持运行时修改
+- 使用[fmt](https://github.com/fmtlib/fmt)库格式化
+- 支持异步模式(可选择)
 
 ## 使用
 
@@ -16,6 +29,11 @@ c++ logging library
     add_subdirectory(${DFLOG_SRC}/dflog)
     ```
 
+## 输出示例
+
+```shell
+[2020-10-22 08:31:28.382] [INFO] [15061] [example.cpp](16): info log ...
+```
 
 ## 使用示例
 ```cpp
@@ -106,5 +124,4 @@ email: 245292011@qq.com
 
 ## 参考
 - [spdlog](https://github.com/gabime/spdlog)
-
 
