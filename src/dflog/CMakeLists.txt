@@ -6,4 +6,4 @@ include_directories(${DFLOG_SRC})
 
 add_library(dflog STATIC ${SOURCE_FILES})
 
-target_link_libraries(dflog fmt)
+target_link_libraries(dflog fmt pthread)
