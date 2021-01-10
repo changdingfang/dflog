@@ -34,7 +34,7 @@ string rotationFileName(string filename, time_t sec)
     return std::move(f.append("_").append(timeStr).append(ext));
 }
 
-int testNormalSink(string filename, Rotation_T rt, uint64_t maxFilesize, uint16_t maxFiles, LogMsg_T msg)
+int testNormalSink(string filename, Rotation_T rt, uint64_t maxFilesize, int16_t maxFiles, LogMsg_T msg)
 {
     shared_ptr<NormalSink> p = make_shared<NormalSink>(filename,  rt, maxFilesize, maxFiles);
     p->setFormatter(unique_ptr<FormatHelper>(new FormatHelper()));
@@ -82,7 +82,7 @@ TEST(NormalSink, rotateLog)
 
     for (uint32_t i = 0; i < tests.size(); ++i)
     {
-        EXPECT_FALSE(testNormalSink(tests[i].first, Rotation_T{6, 30}, tests[i].second, 10, msg));
+        EXPECT_FALSE(testNormalSink(tests[i].first, Rotation_T{6, 30}, tests[i].second, -1, msg));
         if (tests[i].second <= 512)
         {
             string rotationFile = rotationFileName(tests[i].first, msg.time.sec);
@@ -91,7 +91,7 @@ TEST(NormalSink, rotateLog)
 
         /* 测试每日分割日志 */
         msg.time.sec += ONE_DAY_SEC;
-        EXPECT_FALSE(testNormalSink(tests[i].first, Rotation_T{6, 30}, tests[i].second, 10, msg));
+        EXPECT_FALSE(testNormalSink(tests[i].first, Rotation_T{6, 30}, tests[i].second, -1, msg));
         string rotationFile(rotationFileName(tests[i].first, msg.time.sec));
         EXPECT_TRUE(fileExists(tests[i].first));
         EXPECT_TRUE(fileExists(rotationFile)) << "rotationFile: " << rotationFile;

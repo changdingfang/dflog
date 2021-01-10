@@ -94,6 +94,7 @@ namespace dflog
 
         void setFileSize(uint64_t filesize);
         bool setRotationTime(int hour, int min);
+        void setFiles(int16_t files);
 
         void setTerminalColor(bool shouldColor);
 

@@ -77,8 +77,9 @@ namespace dflog
 
 
     /**/
-    static void SetFiles()
+    static void SetFiles(int16_t files)
     {
+        dflog::Logger::Instance()->setFiles(files);
     }
 
 

@@ -20,13 +20,14 @@ namespace dflog
     {
 
 
-        NormalSink::NormalSink(std::string filename, Rotation_T rotation, uint64_t maxFilesize, uint16_t maxFiles) 
-            /* default maxFilesize = 1024 * 1024 * 1024; maxFiles = 10 */
+        NormalSink::NormalSink(std::string filename, Rotation_T rotation, uint64_t maxFilesize, int16_t maxFiles) 
+            /* default maxFilesize = 1024 * 1024 * 1024; maxFiles = -1 */
             : filename_(std::move(filename))
               , rotation_(std::move(rotation))
               , currentSize_(0)
               , maxFilesize_(maxFilesize)
               , maxFiles_(maxFiles)
+              , currFiles_(0)
               , rotationTime_(0, 0)
         {
             struct timeval tv;
@@ -52,6 +53,8 @@ namespace dflog
                 ::fprintf(stderr, "open file. %s", e.c_str());
             }
             currentSize_ = fileHelper_.size();
+
+            this->loadLogFilename();
         }
 
 
@@ -69,7 +72,7 @@ namespace dflog
 
             if (shouldRotate)
             {
-                this->rotateLog_(time.sec);
+                this->rotateLog(time.sec);
                 while (msg.time > rotationTime_)
                 {
                     rotationTime_ .sec += ONE_DAY_SEC;
@@ -130,7 +133,14 @@ namespace dflog
         }
 
 
-        void NormalSink::rotateLog_(time_t time)
+        void NormalSink::setFiles(int16_t maxFiles)
+        {
+            maxFiles_ = maxFiles;
+            this->cleanOldFile();
+        }
+
+
+        void NormalSink::rotateLog(time_t time)
         {
             std::string ext, backname;
             std::tie(backname, ext) = FileHelper::splitByExtension(filename_);
@@ -142,7 +152,7 @@ namespace dflog
             /*    or */
             /* 2. filename__year-mon-day.log.1 */
             char s[64] = { 0 };
-            strftime(s, sizeof(s), DFLOG_LOG_BACKUP_FORMAT, &t);
+            ::strftime(s, sizeof(s), DFLOG_LOG_BACKUP_FORMAT, &t);
             backname.append("_");
             backname.append(s);
             if (!ext.empty())
@@ -150,6 +160,7 @@ namespace dflog
                 backname.append(ext);
             }
 
+            std::string newBackFilename(backname);
             if (::access(backname.c_str(), F_OK) == 0)
             {
                 int num = 0;
@@ -162,6 +173,8 @@ namespace dflog
                     filenamesStk.push_back(name);
                     if (::access(name.c_str(), F_OK) != 0)
                     {
+                        std::list<std::string> &fnListRef = filenameList_.back();
+                        fnListRef.push_back(name);
                         break;
                     }
                 } while (true);
@@ -179,6 +192,12 @@ namespace dflog
                     dflog::os::rename(filename1, filename2);
                 } while (filenamesStk.size() > 0);
             }
+            else
+            {
+                std::list<std::string> fnList = { backname };
+                filenameList_.push_back(fnList);
+            }
+            ++currFiles_;
 
             fileHelper_.close();
             dflog::os::rename(filename_, backname);
@@ -190,7 +209,85 @@ namespace dflog
             {
                 ::fprintf(stderr, "open file. %s", e.c_str());
             }
+
+            this->cleanOldFile();
+
             return ;
+        }
+
+
+        void NormalSink::loadLogFilename()
+        {
+            std::string ext, filepre;
+            std::tie(filepre, ext) = FileHelper::splitByExtension(filename_);
+
+            struct timeval tv;
+            ::gettimeofday(&tv, nullptr);
+            tv.tv_sec += ONE_DAY_SEC;
+            while (true)
+            {
+                struct tm t;
+                tv.tv_sec -= ONE_DAY_SEC;
+                ::localtime_r(&tv.tv_sec, &t);
+                char s[64] = { 0 };
+                ::strftime(s, sizeof(s), DFLOG_LOG_BACKUP_FORMAT, &t);
+                std::string oldfile(filepre);
+                oldfile.append("_");
+                oldfile.append(s);
+                if (!ext.empty())
+                {
+                    oldfile.append(ext);
+                }
+                if (::access(oldfile.c_str(), F_OK) != 0)
+                {
+                    break;
+                }
+
+                std::list<std::string> fnList;
+                fnList.push_back(oldfile);
+
+                int num = 0;
+                do
+                {
+                    std::string name(oldfile);
+                    name.append(".");
+                    name.append(std::to_string(++num));
+                    if (::access(name.c_str(), F_OK) != 0)
+                    {
+                        break;
+                    }
+                    fnList.push_back(name);
+                } while (true);
+
+                currFiles_ += fnList.size();
+                filenameList_.push_back(fnList);
+            }
+        }
+
+
+        void NormalSink::cleanOldFile()
+        {
+            if (maxFiles_ == -1)
+            {
+                return ;
+            }
+
+            while (currFiles_ >= maxFiles_)
+            {
+                std::list<std::string> &fnList = filenameList_.back();
+                std::string filename = fnList.back();
+                if (::access(filename.c_str(), F_OK) == 0)
+                {
+                    ::remove(filename.c_str());
+                }
+
+                fnList.pop_back();
+                if (fnList.empty())
+                {
+                    filenameList_.pop_back();
+                }
+                --currFiles_;
+            }
         }
 
 

@@ -90,7 +90,7 @@ namespace dflog
             /* 默认分割日志大小为 100MB */
             /* 默认分割日志文件数量上限为 30个 */
             dflog::sinks::Rotation_T rt{6, 0};
-            sinkPtr sp(new sinks::NormalSink(filename, rt, 100 * 1024 * 1024, 30));
+            sinkPtr sp(new sinks::NormalSink(filename, rt, 100 * 1024 * 1024, -1));
             sp->setFormatter(std::move(std::unique_ptr<dflog::fmtHelper::FormatHelper>(new dflog::fmtHelper::FormatHelper())));
             sinks_.push_back(std::make_pair(loggerOption::FILELOG, sp));
         }
@@ -173,6 +173,19 @@ namespace dflog
             }
         }
         return true;
+    }
+
+
+    void Logger::setFiles(int16_t files)
+    {
+        for (auto &sinkPair : sinks_)
+        {
+            if (sinkPair.first & dflog::loggerOption::FILELOG)
+            {
+                dynamic_cast<sinks::NormalSink *>(sinkPair.second.get())->setFiles(files);
+            }
+        }
+        return ;
     }
 
 
