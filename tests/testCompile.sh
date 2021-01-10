@@ -4,7 +4,7 @@
 #  Author:       dingfang
 #  CreateDate:   2021-01-10 17:58:33
 #  ModifyAuthor: dingfang
-#  ModifyDate:   2021-01-10 19:05:40
+#  ModifyDate:   2021-01-10 19:18:39
 # =======================================================================
 
 SCRIPT=`pwd`/${0}
@@ -16,7 +16,7 @@ build()
 {
     cd ${ROOTDIR}/..
 
-    if [[ -d ${build} ]]; then
+    if [[ -d build ]]; then
         rm -r build
     fi
 
@@ -61,12 +61,6 @@ checkLogLoop()
 }
 
 
-checkNormalSink()
-{
-    rm test1* test2* test3* log -r
-}
-
-
 runTest()
 {
     cd ${BINDIR}
@@ -87,15 +81,10 @@ runTest()
             continue
         fi
 
-        if [[ "${line}" == "testNormalSink" ]]; then
-            checkNormalSink "${line}"
-            # continue
-        fi
-
         ./${line} > result_${line} 2>&1
     done <<< "${files}"
 }
 
-# build
+build
 runTest
 
